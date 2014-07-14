@@ -33,6 +33,16 @@ namespace szwast
 		source_iterator m_end;
 		size_type m_size;
 	};
+
+	template<typename Key, class Compare, class Allocator>
+	class combinations<Key, Compare, Allocator>::const_iterator
+	{
+	public:
+		using source_iterator = combinations<Key, Compare, Allocator>::source_iterator;
+
+		const_iterator(source_iterator source_begin, source_iterator source_end, size_type size);
+
+	};
 }
 
 
@@ -44,3 +54,5 @@ szwast::combinations<Key, Compare, Allocator>::combinations(source_iterator sour
 {
 
 }
+
+
