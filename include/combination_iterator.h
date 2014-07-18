@@ -19,6 +19,49 @@ namespace szwast
 {
 	using std::rel_ops::operator!=;
 
+	template<typename Key, class Class>
+	class MemoizedMember
+	{
+	public:
+		MemoizedMember(Class& instance, Key (Class::*evaluate)() const)
+		: m_instance(instance)
+		, m_evaluate(evaluate)
+		{
+		}
+
+		MemoizedMember& operator=(const MemoizedMember& r)
+		{
+			m_valid = r.m_valid;
+			m_value = r.m_value;
+			m_evaluate = r.m_evaluate;
+			return *this;
+		}
+
+		MemoizedMember& operator=(const MemoizedMember&& r)
+		{
+			m_valid = r.m_valid;
+			m_value = r.m_value;
+			m_evaluate = r.m_evaluate;
+			return *this;
+		}
+
+		operator Key() const
+		{
+			if (!m_valid)
+			{
+				m_value = (m_instance.*m_evaluate)();
+				m_valid = true;
+			}
+			return m_value;
+		}
+
+	private:
+		mutable bool m_valid{false};
+		Class& m_instance;
+		mutable Key m_value{};
+		Key (Class::*m_evaluate)() const;
+	};
+
 
 	template<typename Key,
 		class Compare = std::less<Key>,
@@ -28,7 +71,7 @@ namespace szwast
 	public:
 		using value_type      = std::set<Key, Compare, Allocator>;
 		using allocator_type  = Allocator;
-		using size_type       = std::size_t;
+		using size_type       = typename std::set<Key, Compare, Allocator>::size_type;
 
 		using source_iterator = typename value_type::const_iterator;
 
@@ -80,12 +123,19 @@ namespace szwast
 			std::vector<source_iterator, Allocator> m_members;
 		};
 
-		combinations(source_iterator source_begin, source_iterator source_end, size_type size)
+		combinations(source_iterator source_begin, source_iterator source_end, size_type r)
 		: m_begin(source_begin)
 		, m_end(source_end)
-		, m_size(size)
+		, m_r(r)
 		{
 
+		}
+
+		bool operator==(const combinations &rhs) const
+		{
+			return (m_begin == rhs.m_begin)
+				&& (m_end == rhs.m_end)
+				&& (m_size == rhs.m_size);
 		}
 
 		const_iterator begin() const
@@ -98,10 +148,26 @@ namespace szwast
 			return const_iterator(m_begin, m_end, m_size, true);
 		}
 
+		size_type size() const
+		{
+			return m_size;
+		}
+
 	private:
+		size_type evaluate_size() const
+		{
+			auto n = std::distance(m_begin, m_end);
+			size_type r_max = std::min(m_r, n - m_r);
+			size_type size{1};
+			for (size_type r = 0; r++ < r_max; n--)
+				(size *= n) /= r;
+			return size;
+		};
 		source_iterator m_begin;
 		source_iterator m_end;
-		size_type m_size;
+		size_type m_r;	// 'r' as in nCr.
+		MemoizedMember<size_type, combinations> m_size{*this, &combinations::evaluate_size};
+
 	};
 }
 
