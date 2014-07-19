@@ -80,11 +80,11 @@ namespace szwast
 		public:
 			using source_iterator = combinations<Key, Compare, Allocator>::source_iterator;
 
-			const_iterator(source_iterator source_begin, source_iterator source_end, size_type size, bool end = false)
+			const_iterator(source_iterator source_begin, source_iterator source_end, size_type r, bool end = false)
 			: m_begin(source_begin)
 			, m_end(source_end)
-			, m_size(size)
-			, m_members(m_size)
+			, m_r(r)
+			, m_members(m_r)
 			{
 				source_iterator gopher = m_begin;
 
@@ -92,7 +92,7 @@ namespace szwast
 				{
 					// Start gopher at m_size before end, to put the last m_member at end.
 					gopher = m_end;
-					for (size_type i = 1; (i < m_size) && (gopher != m_begin); i++)
+					for (size_type i = 1; (i < m_r) && (gopher != m_begin); i++)
 					{
 						gopher--;
 					}
@@ -119,7 +119,7 @@ namespace szwast
 
 			source_iterator m_begin;
 			source_iterator m_end;
-			size_type m_size;	// I might not need this, because it is embedded in m_members.
+			size_type m_r;	// r as in nCr.  I might not need this, because it is embedded in m_members.
 			std::vector<source_iterator, Allocator> m_members;
 		};
 
@@ -140,12 +140,12 @@ namespace szwast
 
 		const_iterator begin() const
 		{
-			return const_iterator(m_begin, m_end, m_size, false);
+			return const_iterator(m_begin, m_end, m_r, false);
 		}
 
 		const_iterator end() const
 		{
-			return const_iterator(m_begin, m_end, m_size, true);
+			return const_iterator(m_begin, m_end, m_r, true);
 		}
 
 		size_type size() const
