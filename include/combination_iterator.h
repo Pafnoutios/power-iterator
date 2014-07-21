@@ -13,6 +13,7 @@
 #include <set>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 
 namespace szwast
@@ -78,7 +79,7 @@ namespace szwast
 		class const_iterator
 		{
 		public:
-			using source_iterator = combinations<Key, Compare, Allocator>::source_iterator;
+			using source_iterator = typename combinations<Key, Compare, Allocator>::source_iterator;
 
 			const_iterator(source_iterator source_begin, source_iterator source_end, size_type r, bool end = false)
 			: m_begin(source_begin)
@@ -135,7 +136,7 @@ namespace szwast
 		{
 			return (m_begin == rhs.m_begin)
 				&& (m_end == rhs.m_end)
-				&& (m_size == rhs.m_size);
+				&& (m_r == rhs.m_r);
 		}
 
 		const_iterator begin() const
