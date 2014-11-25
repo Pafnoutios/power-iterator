@@ -220,11 +220,17 @@ namespace szwast
 
 		}
 
+		/**
+		 *	@remarks
+		 *		I wanted to let a quick (m_begin == rhs.m_begin && m_end == rhs.m_end) short-cirtuit
+		 *	the possibly laborious std::equal, but MSVC gives a run-time assert whenever comparing
+		 *	iterators from different containers.  I'm trying not to get too upset about it, because
+		 *	I can understand the sentiment.  None-the-less it has proven rather irritating.
+		 */
 		bool operator==(const combinations &rhs) const
 		{
 			return (m_r == rhs.m_r)
-				&& (((m_end == rhs.m_end) && (m_begin == rhs.m_begin))
-					|| ((size() == rhs.size()) && std::equal(m_begin, m_end, rhs.m_begin)));
+				&& (size() == rhs.size()) && std::equal(m_begin, m_end, rhs.m_begin);
 		}
 
 		const_iterator begin() const
