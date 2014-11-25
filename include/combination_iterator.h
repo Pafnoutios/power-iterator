@@ -30,23 +30,54 @@ namespace szwast
 		{
 		}
 
-		MemoizedMember& operator=(const MemoizedMember& r)
+		/**
+		 * A memoized member should be affiliated with an object.  If that object is being
+		 * assigned we want to copy the memoization state, but m_instance shouldn't change.
+		 *
+		 * Basic exception guarantee: if copying the memoized value throws, then the memoization
+		 * will be cleared and recalculated on the next request.
+		 */
+		MemoizedMember& operator=(const MemoizedMember& r) noexcept(noexcept(m_value = r.m_value))
 		{
-			m_valid = r.m_valid;
-			m_value = r.m_value;
-			m_evaluate = r.m_evaluate;
+			try
+			{
+				m_valid = r.m_valid;
+				m_value = r.m_value;
+			}
+			catch ()
+			{
+				m_valid = false;
+				throw;
+			}
 			return *this;
 		}
 
 		MemoizedMember& operator=(const MemoizedMember&& r)
+			noexcept(noexcept(m_value = std::move(r.m_value)))
 		{
-			m_valid = r.m_valid;
-			m_value = r.m_value;
-			m_evaluate = r.m_evaluate;
+			try
+			{
+				m_valid = std::move(r.m_valid);
+				m_value = std::move(r.m_value);
+			}
+			catch ()
+			{
+				m_valid = false;
+				throw;
+			}
 			return *this;
 		}
 
-		operator Key() const
+		/**
+		 * Key conversion operator.  This is the meat of this class.  This is how the MemoizedMember
+		 * behaves like a Key object.  If the value has not yet been calculated, then calculate it.
+		 *
+		 * @returns	The memoized value.
+		 *
+		 * Strong exception guarantee:  If the calculation of the value to be memoized fails, then
+		 * it will be reattempted next time.
+		 */
+		operator Key() const noexcept(noexcept((m_instance.*m_evaluate)()))
 		{
 			if (!m_valid)
 			{
@@ -58,9 +89,9 @@ namespace szwast
 
 	private:
 		mutable bool m_valid{false};
-		Class& m_instance;
 		mutable Key m_value{};
-		Key (Class::*m_evaluate)() const;
+		Class& m_instance;
+		const Key (Class::*m_evaluate)() const;
 	};
 
 
@@ -81,7 +112,9 @@ namespace szwast
 		public:
 			using source_iterator = typename combinations<Key, Compare, Allocator>::source_iterator;
 
-			const_iterator(source_iterator source_begin, source_iterator source_end, size_type r, bool end = false)
+			const_iterator(
+				source_iterator source_begin, source_iterator source_end, size_type r, bool end = false
+			)
 			: m_begin(source_begin)
 			, m_end(source_end)
 			, m_r(r)
@@ -204,6 +237,17 @@ namespace szwast
 			return const_iterator(m_begin, m_end, m_r, true);
 		}
 
+		/**
+		 * The size() method will return the number of combination sets in the combinations class,
+		 * but it not a simple getter.  Evaluating the number of combinations requires knowledge of
+		 * the number of elements in the base container.  Finding the number of elements in the base
+		 * container may not be a constant-time operation.  If the source iterators are only
+		 * forward iterators, not random-access, then finding the size of the base container will
+		 * cost on the order of the size of the base container.  Once calculated, the size will be
+		 * cached for successive calls.
+		 *
+		 * \see evaluate_size()
+		 */
 		size_type size() const
 		{
 			return m_size;
@@ -219,7 +263,7 @@ namespace szwast
 			for (size_type r = 0; r++ < r_max; n--)
 				(size *= n) /= r;
 			return size;
-		};
+		}
 
 		source_iterator m_begin;
 		source_iterator m_end;
