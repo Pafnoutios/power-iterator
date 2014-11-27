@@ -1,3 +1,6 @@
+# Power Iterator Unit Tests
+# © John Szwast
+
 set(headers include/combination_iterator.h include/power_iterator.h)
 
 set(sources)
