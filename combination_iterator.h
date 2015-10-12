@@ -117,7 +117,7 @@ public:
 
 				// Find the first member from the end that has room to move forward
 				while ((gopher != m_members.begin())
-					&& (*--gopher != --reference))
+					&& (*--gopher == --reference))
 				{}
 
 				// Move it forward and put the rest right after
@@ -146,12 +146,12 @@ public:
 	}
 
 	/**
-		*	@remarks
-		*		I wanted to let a quick (m_begin == rhs.m_begin && m_end == rhs.m_end) short-cirtuit
-		*	the possibly laborious std::equal, but MSVC gives a run-time assert whenever comparing
-		*	iterators from different containers.  I'm trying not to get too upset about it, because
-		*	I can understand the sentiment.  None-the-less it has proven rather irritating.
-		*/
+	 *	@remarks
+	 *		I wanted to let a quick (m_begin == rhs.m_begin && m_end == rhs.m_end) short-cirtuit
+	 *	the possibly laborious std::equal, but MSVC gives a run-time assert whenever comparing
+	 *	iterators from different containers.  I'm trying not to get too upset about it, because
+	 *	I can understand the sentiment.  None-the-less it has proven rather irritating.
+	 */
 	bool operator==(const combinations &rhs) const
 	{
 		return (m_r == rhs.m_r)
@@ -169,16 +169,16 @@ public:
 	}
 
 	/**
-		* The size() method will return the number of combination sets in the combinations class,
-		* but it not a simple getter.  Evaluating the number of combinations requires knowledge of
-		* the number of elements in the base container.  Finding the number of elements in the base
-		* container may not be a constant-time operation.  If the source iterators are only
-		* forward iterators, not random-access, then finding the size of the base container will
-		* cost on the order of the size of the base container.  Once calculated, the size will be
-		* cached for successive calls.
-		*
-		* \see evaluate_size()
-		*/
+	 * The size() method will return the number of combination sets in the combinations class,
+	 * but it not a simple getter.  Evaluating the number of combinations requires knowledge of
+	 * the number of elements in the base container.  Finding the number of elements in the base
+	 * container may not be a constant-time operation.  If the source iterators are only
+	 * forward iterators, not random-access, then finding the size of the base container will
+	 * cost on the order of the size of the base container.  Once calculated, the size will be
+	 * cached for successive calls.
+	 *
+	 * \see evaluate_size()
+	 */
 	size_type size() const
 	{
 		return m_size;

@@ -110,6 +110,8 @@ TEST(combination_iterator_navigation, combinations_zero)
 {
 	std::set<int> s{0, 9, 8};
 	combinations<int> test1{s.begin(), s.end(), 0};
+	EXPECT_EQ(1, test1.size());
+
 	auto test_it = test1.begin();
 	for (auto i = 0; i < s.size(); i++)
 		EXPECT_EQ(std::set<int>{}, *test_it++);
@@ -120,6 +122,8 @@ TEST(combination_iterator_navigation, combinations_zero_to_end)
 {
 	std::set<int> s{0, 9, 8};
 	combinations<int> test{s.begin(), s.end(), 0};
+	EXPECT_NE(test.begin(), test.end());
+
 	combinations<int>::size_type element_count = 0;
 	for (auto i = test.begin(); (i != test.end()) && (element_count < 10); i++, element_count++)
 		;
@@ -140,4 +144,18 @@ TEST(combination_iterator_navigation, combinations_one)
 	{
 		EXPECT_EQ(*vector_it, *test_it);
 	}
+}
+
+TEST(combination_iterator_navigation, union_to_whole)
+{
+	std::set<int> s{0, 1, 2, 3};
+	std::set<int> union_of_subs;
+
+	combinations<int> test{s.begin(), s.end(), 2};
+	for (auto const& subset : test)
+	{
+		union_of_subs.insert(subset.begin(), subset.end());
+	}
+
+	EXPECT_EQ(s, union_of_subs);
 }
