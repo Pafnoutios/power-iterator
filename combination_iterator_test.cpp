@@ -138,13 +138,30 @@ TEST(combination_iterator_navigation, combinations_one)
 	std::vector<std::set<int>> results{{0}, {1}, {2}, {3}};
 	combinations<int> test{s.begin(), s.end(), 1};
 	auto test_it = test.begin();
+  // Even in C++11 std::equal is still range-and-a-half
 	for (auto vector_it = results.begin();
-	    (test_it != test.end()) && (vector_it != results.end());
-	    test_it++, vector_it++)
+	     (test_it != test.end()) && (vector_it != results.end());
+	     ++test_it, ++vector_it)
 	{
 		EXPECT_EQ(*vector_it, *test_it);
 	}
 }
+
+
+TEST(combination_iterator_navigation, combinations_two)
+{
+  std::set<int> s{ 0,1,2,3 };
+  std::vector<std::set<int>> results{ {0,1},{0,2},{0,3},{1,2},{1,3},{2,3} };
+  combinations<int> test{ s.begin(), s.end(), 2 };
+  auto test_it = test.begin();
+  for (auto vector_it = results.begin();
+       (test_it != test.end()) && (vector_it != results.end());
+       ++test_it, ++vector_it)
+  {
+    EXPECT_EQ(*vector_it, *test_it);
+  }
+}
+
 
 TEST(combination_iterator_navigation, union_to_whole)
 {
