@@ -1,13 +1,12 @@
 /**
- *	@file      combination_iterator_test.cpp
- *	@author    John Szwast
- *	@year      2014
- *	@copyright none
- */
+*	\author    John Szwast
+*	\year      2014-2016
+*	\copyright MIT
+*/
 
 
 #include "gtest/gtest.h"
-#include "combination_iterator.h"
+#include "combination_iterator.hpp"
 #include <set>
 
 
@@ -137,14 +136,12 @@ TEST(combination_iterator_navigation, combinations_one)
 	std::set<int> s{0, 1, 2, 3};
 	std::vector<std::set<int>> results{{0}, {1}, {2}, {3}};
 	combinations<int> test{s.begin(), s.end(), 1};
-	auto test_it = test.begin();
-  // Even in C++11 std::equal is still range-and-a-half
-	for (auto vector_it = results.begin();
-	     (test_it != test.end()) && (vector_it != results.end());
-	     ++test_it, ++vector_it)
-	{
-		EXPECT_EQ(*vector_it, *test_it);
-	}
+
+  EXPECT_EQ(results.size(), test.size());
+  if (results.size() == test.size())
+  {
+    EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin()));
+  }
 }
 
 
@@ -153,12 +150,11 @@ TEST(combination_iterator_navigation, combinations_two)
   std::set<int> s{ 0,1,2,3 };
   std::vector<std::set<int>> results{ {0,1},{0,2},{0,3},{1,2},{1,3},{2,3} };
   combinations<int> test{ s.begin(), s.end(), 2 };
-  auto test_it = test.begin();
-  for (auto vector_it = results.begin();
-       (test_it != test.end()) && (vector_it != results.end());
-       ++test_it, ++vector_it)
+
+  EXPECT_EQ(results.size(), test.size());
+  if (results.size() == test.size())
   {
-    EXPECT_EQ(*vector_it, *test_it);
+    EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin()));
   }
 }
 

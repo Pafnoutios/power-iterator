@@ -1,9 +1,8 @@
 /**
- *	@file      combination_iterator.h
- *	@author    John Szwast
- *	@year      2014
- *	@copyright none
- */
+*	\author    John Szwast
+*	\year      2014-2016
+*	\copyright MIT
+*/
 
 
 #pragma once
@@ -26,9 +25,12 @@ template<typename Key,
 class combinations
 {
 public:
-	using value_type      = std::set<Key, Compare, Allocator>;
+  using key_type        = std::set<Key, Compare, Allocator>;
+  using value_type      = key_type;
 	using allocator_type  = Allocator;
-	using size_type       = typename std::set<Key, Compare, Allocator>::size_type;
+	using size_type       = typename value_type::size_type;
+  using difference_type = typename value_type::difference_type;
+
 
 	using source_iterator = typename value_type::const_iterator;
 
@@ -137,6 +139,13 @@ public:
 				            // between begin and end.  This flag will indicate when the end has been reached.
 	};
 
+  
+  combinations(key_type source, size_type r)
+    : combinations(source.begin(), source.end(), r)
+  {
+
+  }
+
 	combinations(source_iterator source_begin, source_iterator source_end, size_type r)
 	: m_begin(source_begin)
 	, m_end(source_end)
@@ -155,7 +164,8 @@ public:
 	bool operator==(const combinations &rhs) const
 	{
 		return (m_r == rhs.m_r)
-			&& (size() == rhs.size()) && std::equal(m_begin, m_end, rhs.m_begin);
+			&& (size() == rhs.size())
+      && std::equal(m_begin, m_end, rhs.m_begin);
 	}
 
 	const_iterator begin() const
