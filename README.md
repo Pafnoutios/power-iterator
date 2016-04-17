@@ -1,5 +1,5 @@
 # power-iterator
-This library contains facicilities for iterating over the power set of a collection
+This library contains facilities for iterating over the power set of a collection
 as well as over combinations of various size of a collection.
 
 ## Power Set

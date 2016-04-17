@@ -35,11 +35,13 @@ by item iterators of [`begin()`, `begin()+r`).
 The combination iterator `end()` is represented
 by item iterators of (`end()-r`, `end()`].
 Incrementation is implemented by incrementing the end-most iterator
-that has room to move end-ward, and resetting all endmore iterators in sequence.
+that has room to move end-ward, and resetting all later iterators
+in a contiguous sequence after it.
 (See Figure 1 for an example sequence of combination iterators
 over combinations of size 3 of a base set of size 5.)
 
-(missing)
+![Combinations (5,3) Example](Combinations(5,3)Example.svg)
+
 Figure 1: Iterator sequence for combinations of size 3 over a set of size 5.
 
 In this way, combination iterators will produce combinations

@@ -135,12 +135,12 @@ public:
 		size_type m_r;	// r as in nCr.  I might not need this, because it is embedded in m_members.
 		std::vector<source_iterator, Allocator> m_members;
 		std::set<Key, Compare, Allocator> m_value;	// The value returned by dereferencing.
-		bool m_at_end;	// If m_r == 0, then m_members is always empty and there is no distiction
+		bool m_at_end;	// If m_r == 0, then m_members is always empty and there is no distinction
 				            // between begin and end.  This flag will indicate when the end has been reached.
 	};
 
   
-  combinations(key_type source, size_type r)
+  combinations(key_type const& source, size_type r)
     : combinations(source.begin(), source.end(), r)
   {
 

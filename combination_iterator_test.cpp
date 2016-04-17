@@ -10,17 +10,26 @@
 #include <set>
 
 
+TEST(combinations_construction, construction_from_set)
+{
+  std::set<int> s{ 0, 3, -6, 12 };
+  for (size_t i = 0; i <= s.size(); ++i)
+  {
+    combinations<int> test{ s, i };
+  }
+  SUCCEED();  // If it compiles, it passes.
+}
+
+
 TEST(combinations_construction, construction_from_iterators)
 {
-	combinations<int> test1{std::set<int>{}.begin(), std::set<int>{}.end(), 0};
-
-	std::set<int> s{0, 4, -4, 8};
+	std::set<int> s{0, 4, -4, 8, 15};
 	for(size_t i = 0; i <= s.size(); i++)
 	{
+    combinations<int> test1{ s, i };
 		combinations<int> test2{s.begin(), s.end(), i};
+    EXPECT_EQ(test1, test2);
 	}
-
-	SUCCEED();	// If it compiles, it passes.
 }
 
 
