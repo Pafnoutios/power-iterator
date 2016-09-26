@@ -8,11 +8,11 @@
 #pragma once
 
 
+#include <algorithm>
 #include <memory>
 #include <set>
-#include <vector>
 #include <utility>
-#include <algorithm>
+#include <vector>
 
 #include "MemoizedMember.hpp"
 
@@ -31,16 +31,32 @@ public:
 	using size_type       = typename value_type::size_type;
   using difference_type = typename value_type::difference_type;
 
+  using reference = value_type&;
+  using const_reference = value_type const&;
+  using pointer = value_type*;
+  using const_pointer = value_type const*;
 
 	using source_iterator = typename value_type::const_iterator;
 
 	class const_iterator
 	{
 	public:
-		using source_iterator = typename combinations<Key, Compare, Allocator>::source_iterator;
+    using combinations_type = typename combinations<Key, Compare, Allocator>;
+		using source_iterator = typename combinations_type::source_iterator;
+    using mutable_value_type = typename combinations_type::key_type;
+
+    /// Type_traits aliases
+    using difference_type = void; ///<  I don't want to try to compute distances between these if I don't have to.
+    using value_type = mutable_value_type const;
+    using pointer = value_type const*;
+    using reference = value_type const&;
+    using iterator_category = std::forward_iterator_tag;
 
 		const_iterator(
-			source_iterator source_begin, source_iterator source_end, size_type r, bool end = false
+      source_iterator const source_begin,
+      source_iterator const source_end,
+      size_type const r,
+      bool const end = false
 		)
 		: m_begin(source_begin)
 		, m_end(source_end)
@@ -73,7 +89,7 @@ public:
 			m_at_end = m_at_end || (!m_members.empty() && (m_members.back() == m_end));
 		}
 
-		bool operator==(const const_iterator &rhs) const
+		bool operator==(const_iterator const& rhs) const
 		{
 			return (m_begin == rhs.m_begin)
 				&& (m_end == rhs.m_end)
@@ -94,7 +110,7 @@ public:
 			return temp;
 		}
 
-		const std::set<Key, Compare, Allocator>& operator*()
+		reference operator*() const
 		{
 			calculate_value();
 			return m_value;
@@ -102,7 +118,7 @@ public:
 
 	private:
 
-		void calculate_value()
+		void calculate_value() const
 		{
 			m_value.clear();
 			for (auto &x : m_members)
@@ -134,12 +150,13 @@ public:
 		source_iterator m_end;
 		size_type m_r;	// r as in nCr.  I might not need this, because it is embedded in m_members.
 		std::vector<source_iterator, Allocator> m_members;
-		std::set<Key, Compare, Allocator> m_value;	// The value returned by dereferencing.
+		mutable mutable_value_type m_value;	// The value returned by dereferencing.
 		bool m_at_end;	// If m_r == 0, then m_members is always empty and there is no distinction
 				            // between begin and end.  This flag will indicate when the end has been reached.
 	};
 
-  
+  using iterator = const_iterator;
+
   combinations(key_type const& source, size_type r)
     : combinations(source.begin(), source.end(), r)
   {
@@ -156,7 +173,7 @@ public:
 
 	/**
 	 *	@remarks
-	 *		I wanted to let a quick (m_begin == rhs.m_begin && m_end == rhs.m_end) short-cirtuit
+	 *		I wanted to let a quick (m_begin == rhs.m_begin && m_end == rhs.m_end) short-circuit
 	 *	the possibly laborious std::equal, but MSVC gives a run-time assert whenever comparing
 	 *	iterators from different containers.  I'm trying not to get too upset about it, because
 	 *	I can understand the sentiment.  None-the-less it has proven rather irritating.
@@ -212,4 +229,5 @@ private:
 	MemoizedMember<size_type, combinations, &combinations::evaluate_size> m_size{*this};
 
 };
+
 
