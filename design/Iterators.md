@@ -13,7 +13,7 @@ A combinations object may be created from a `std::set` container
 (providing `begin()` and `end()` methods)
 or a pair of STL-compatible iterators to the same container.
 The combinations size (the `r` in `nCr`) must be specified at the time of construction.
-This is taken as a constructor parameter to allow constructor objects to be reused
+This is taken as a constructor parameter to allow combination objects to be reused
 and to allow the `r` to be determined at run-time.
 
     combinations(std::set<T> source, std::size_t r);

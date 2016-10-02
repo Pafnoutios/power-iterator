@@ -27,11 +27,22 @@ TEST(combinations_construction, construction_from_iterators)
 	for(size_t i = 0; i <= s.size(); i++)
 	{
     combinations<int> test1{ s, i };
-		combinations<int> test2{s.begin(), s.end(), i};
+		combinations<int> test2{s.cbegin(), s.cend(), i};
     EXPECT_EQ(test1, test2);
 	}
 }
 
+
+TEST(CombinationsConstruction, CopyConstruction)
+{
+  std::set<int> s{0, 3, 5};
+  for (std::size_t i = 0; i <= s.size(); ++i)
+  {
+    combinations<int> test0(s, i);
+    combinations<int> test1(test0);
+    EXPECT_EQ(test0, test1);
+  }
+}
 
 TEST(combinations_equality, equivalently_constructed)
 {
@@ -149,7 +160,7 @@ TEST(combination_iterator_navigation, combinations_one)
   EXPECT_EQ(results.size(), test.size());
   if (results.size() == test.size())
   {
-    EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin()));
+    EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin(), test.end()));
   }
 }
 
@@ -163,7 +174,7 @@ TEST(combination_iterator_navigation, combinations_two)
   EXPECT_EQ(results.size(), test.size());
   if (results.size() == test.size())
   {
-    EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin()));
+    EXPECT_TRUE(std::equal(results.cbegin(), results.cend(), test.cbegin(), test.cend()));
   }
 }
 

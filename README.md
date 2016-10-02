@@ -39,4 +39,4 @@ If any non-default `Compare` or `Allocator` parameters are used for the source `
 then they must also be specified for a `combinations` instance over it.  
 
 The `combinations` class and iterator are designed for finite source collections.
-They will not work well with infinite source collections.
+They will not work well (at all?) with infinite source collections.

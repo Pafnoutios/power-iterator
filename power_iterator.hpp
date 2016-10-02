@@ -47,7 +47,7 @@ public:
     using mutable_value_type = typename powers_type::key_type;
 
     /// Type_traits aliases
-    using difference_type = void; ///<  I don't want to try to compute distances between these if I don't have to.
+    using difference_type = typename mutable_value_type::const_iterator::difference_type;
     using value_type = mutable_value_type const;
     using pointer = value_type const*;
     using reference = value_type const&;
@@ -59,24 +59,19 @@ public:
       bool const end = false)
       : m_begin(source_begin)
       , m_end(source_end)
+      , m_n(std::distance(m_begin, m_end))
+      , m_r(end ? m_n + 1 : 0)
+      , m_combinations(m_begin, m_end, m_r)
+      , m_iter(m_combinations.begin())
     {
-      if (end)
-      {
-        m_members.reserve(std::distance(m_begin, m_end) + 1);
-        for (source_iterator i = m_begin; i != m_end; ++i)
-        {
-          m_members.push_back(i);
-        }
-        m_members.push_back(m_end);
-      }
-      // else, the first element will be an empty set.
     }
 
     bool operator==(const_iterator const& rhs) const
     {
       return (m_begin == rhs.m_begin)
         && (m_end == rhs.m_end)
-        && (m_members == rhs.m_members);
+        && (m_r == rhs.m_r)
+        && (m_iter == rhs.m_iter);
     }
 
     const_iterator& operator++()
@@ -94,38 +89,46 @@ public:
 
     reference operator*() const
     {
-      calculate_value();
-      return m_value;
+      return *m_iter;
     }
 
   private:
 
-    void calculate_value()
-    {
-      m_value.clear();
-      for (auto& x : m_members)
-        m_value.insert(*x);
-    }
+    using combinations_type = combinations<Key, Compare, Allocator>;
+
 
     void increment()
     {
       // Increment if not at end
-      if (m_members.size() <= std::distance(m_begin, m_end))
+      if (!at_end())
       {
-
+        ++m_iter;
+        if (m_iter == m_combinations.end())
+        {
+          ++m_r;
+          m_combinations = combinations_type(m_begin, m_end, m_r);
+          m_iter = m_combinations.begin();
+        }
       }
+    }
+
+    bool at_end()
+    {
+      return m_r > m_n;
     }
 
     source_iterator m_begin;
     source_iterator m_end;
-    std::vector<source_iterator, Allocator> m_members;
-    value_type m_value;
+    size_type m_n;
+    size_type m_r;
+    combinations_type m_combinations;
+    typename combinations_type::const_iterator m_iter;
   };
 
   using iterator = const_iterator;
 
-  powerset(key_type source)
-    : powerset(source.begin(), source.end())
+  powerset(key_type const& source)
+    : powerset(source.cbegin(), source.cend())
   {
 
   }
@@ -137,16 +140,56 @@ public:
 
   }
 
+  powerset(powerset const& rhs)
+    : m_begin(rhs.m_begin)
+    , m_end(rhs.m_end)
+    , m_size(*this, rhs.m_size)
+  {
+
+  }
+
+
+  powerset(powerset&& rhs)
+    : m_begin(std::move(rhs.m_begin))
+    , m_end(std::move(rhs.m_end))
+    , m_size(*this, std::move(rhs.m_size))
+  {}
+
+
+  powerset& operator=(powerset const&) = default;
+  powerset& operator=(powerset&&) = default;
+
+
   bool operator==(const powerset &rhs) const
   {
     return (size() == rhs.size())
       && std::equal(m_begin, m_end, rhs.m_begin);
   }
 
+
+  const_iterator begin() const
+  {
+    return const_iterator(m_begin, m_end, false);
+  }
+
+  const_iterator cbegin() const
+  {
+    return const_iterator(m_begin, m_end, false);
+  }
+
+  const_iterator end() const
+  {
+    return const_iterator(m_begin, m_end, true);
+  }
+
+  const_iterator cend() const
+  {
+    return const_iterator(m_begin, m_end, true);
+  }
   
   size_type size() const
   {
-    renurn m_size;
+    return m_size;
   }
 
 private:
@@ -154,7 +197,7 @@ private:
   size_type evaluate_size() const
   {
     auto n = std::distance(m_begin, m_end);
-    return static_cast<size_type>(2) << n;
+    return static_cast<size_type>(1) << n;
   }
 
   source_iterator m_begin;

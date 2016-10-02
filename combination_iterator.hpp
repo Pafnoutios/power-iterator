@@ -46,7 +46,7 @@ public:
     using mutable_value_type = typename combinations_type::key_type;
 
     /// Type_traits aliases
-    using difference_type = void; ///<  I don't want to try to compute distances between these if I don't have to.
+    using difference_type = typename mutable_value_type::const_iterator::difference_type;
     using value_type = mutable_value_type const;
     using pointer = value_type const*;
     using reference = value_type const&;
@@ -171,6 +171,27 @@ public:
 
 	}
 
+  combinations(combinations const& rhs)
+    : m_begin(rhs.m_begin)
+    , m_end(rhs.m_end)
+    , m_r(rhs.m_r)
+    , m_size(*this, rhs.m_size)
+  {
+
+  }
+
+
+  combinations& operator=(combinations const&) = default;
+  combinations& operator=(combinations&&) = default;
+
+
+  combinations(combinations&& rhs)
+    : m_begin(std::move(rhs.m_begin))
+    , m_end(std::move(rhs.m_end))
+    , m_r(std::move(rhs.m_r))
+    , m_size(*this, std::move(rhs.m_size))
+  {}
+
 	/**
 	 *	@remarks
 	 *		I wanted to let a quick (m_begin == rhs.m_begin && m_end == rhs.m_end) short-circuit
@@ -190,12 +211,22 @@ public:
 		return const_iterator(m_begin, m_end, m_r, false);
 	}
 
-	const_iterator end() const
+  const_iterator cbegin() const
+  {
+    return const_iterator(m_begin, m_end, m_r, false);
+  }
+
+  const_iterator end() const
 	{
 		return const_iterator(m_begin, m_end, m_r, true);
 	}
 
-	/**
+  const_iterator cend() const
+  {
+    return const_iterator(m_begin, m_end, m_r, true);
+  }
+
+  /**
 	 * The size() method will return the number of combination sets in the combinations class,
 	 * but it not a simple getter.  Evaluating the number of combinations requires knowledge of
 	 * the number of elements in the base container.  Finding the number of elements in the base
