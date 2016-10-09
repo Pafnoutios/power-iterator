@@ -36,6 +36,24 @@ TEST(PowerSetConstruction, CopyConstruction)
 }
 
 
+TEST(PowerSetConstruction, MakePowerSet)
+{
+  std::set<int> s{ 0,3,5 };
+
+  powerset<int> test1{ s};
+  auto test2 = make_powerset(s);
+  EXPECT_EQ(test1, test2);
+
+  powerset<int> test3{ s.begin(), s.end()};
+  auto test4 = make_powerset(s.begin(), s.end());
+  EXPECT_EQ(test3, test4);
+
+  powerset<int> test5{ s.cbegin(), s.cend()};
+  auto test6 = make_powerset(s.cbegin(), s.cend());
+  EXPECT_EQ(test5, test6);
+}
+
+
 TEST(PowerSetEquality, EquallyConstructed)
 {
   std::set<int> s1{ 1, 2, 3 };

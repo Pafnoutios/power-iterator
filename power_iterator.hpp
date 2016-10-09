@@ -204,3 +204,18 @@ private:
   source_iterator m_end;
   MemoizedMember<size_type, powerset, &powerset::evaluate_size> m_size{ *this };
 };
+
+
+template<typename T>
+powerset<T> make_powerset(std::set<T> const& source)
+{
+  return powerset<T>{source};
+}
+
+
+template<typename Iter, typename T = typename Iter::value_type>
+powerset<T> make_powerset(Iter begin, Iter end)
+{
+  return powerset<T>{begin, end};
+}
+

@@ -44,6 +44,25 @@ TEST(CombinationsConstruction, CopyConstruction)
   }
 }
 
+
+TEST(CombinationsConstruction, MakeCombinations)
+{
+  std::set<int> s{ 0,3,5 };
+
+  combinations<int> test1{ s, 2 };
+  auto test2 = make_combinations(s, 2);
+  EXPECT_EQ(test1, test2);
+
+  combinations<int> test3{ s.begin(), s.end(), 3 };
+  auto test4 = make_combinations(s.begin(), s.end(), 3);
+  EXPECT_EQ(test3, test4);
+
+  combinations<int> test5{ s.cbegin(), s.cend(), 1 };
+  auto test6 = make_combinations(s.cbegin(), s.cend(), 1);
+  EXPECT_EQ(test5, test6);
+}
+
+
 TEST(combinations_equality, equivalently_constructed)
 {
 	std::set<int> s{1, 2, 3};

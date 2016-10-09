@@ -262,3 +262,16 @@ private:
 };
 
 
+template<typename T>
+combinations<T> make_combinations(std::set<T> const& source, typename combinations<T>::size_type r)
+{
+  return combinations<T>{source, r};
+}
+
+
+template<typename Iter, typename T = typename Iter::value_type>
+combinations<T> make_combinations(Iter begin, Iter end, typename combinations<T>::size_type r)
+{
+  return combinations<T>{begin, end, r};
+}
+
