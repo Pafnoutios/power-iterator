@@ -1,6 +1,0 @@
-[submodule "googletest"]
-	path = googletest
-	url = https://chromium.googlesource.com/external/googletest
-[submodule "memoized-member"]
-	path = memoized-member
-	url = ../memoized-member
