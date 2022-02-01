@@ -1,8 +1,8 @@
-#Combination and Power Iterators
+# Combination and Power Iterators
 
-##Combination Iterators
+## Combination Iterators
 
-###Combinations Virtual Container
+### Combinations Virtual Container
 
 A `combinations` virtual container is used to represent the set of combinations.
 It is a lazy container and does not calculate anything itself.
@@ -26,7 +26,7 @@ The combinations object provides `begin()` and `end()` member functions for full
     const_iterator begin() const;
     const_iterator end() const;
 
-###Internal Iterators
+### Internal Iterators
 
 A combinations iterator has a number of item iterators, `r`,
 equal in number to the size of combinations being iterated over.
@@ -49,7 +49,7 @@ in lexicographical order with respect to the order in the underlying container.
 
 
 
-##Power Set Iterator
+## Power Set Iterator
 
 The power set iterator is implemented with combination iterators.
 One combination iterator is used at a time,

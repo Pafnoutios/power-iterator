@@ -12,12 +12,12 @@
 
 TEST(combinations_construction, construction_from_set)
 {
-  std::set<int> s{ 0, 3, -6, 12 };
-  for (size_t i = 0; i <= s.size(); ++i)
-  {
-    combinations<int> test{ s, i };
-  }
-  SUCCEED();  // If it compiles, it passes.
+	std::set<int> s{ 0, 3, -6, 12 };
+	for (size_t i = 0; i <= s.size(); ++i)
+	{
+		combinations<int> test{ s, i };
+	}
+	SUCCEED();  // If it compiles, it passes.
 }
 
 
@@ -26,40 +26,40 @@ TEST(combinations_construction, construction_from_iterators)
 	std::set<int> s{0, 4, -4, 8, 15};
 	for(size_t i = 0; i <= s.size(); i++)
 	{
-    combinations<int> test1{ s, i };
+		combinations<int> test1{ s, i };
 		combinations<int> test2{s.cbegin(), s.cend(), i};
-    EXPECT_EQ(test1, test2);
+		EXPECT_EQ(test1, test2);
 	}
 }
 
 
 TEST(CombinationsConstruction, CopyConstruction)
 {
-  std::set<int> s{0, 3, 5};
-  for (std::size_t i = 0; i <= s.size(); ++i)
-  {
-    combinations<int> test0(s, i);
-    combinations<int> test1(test0);
-    EXPECT_EQ(test0, test1);
-  }
+	std::set<int> s{0, 3, 5};
+	for (std::size_t i = 0; i <= s.size(); ++i)
+	{
+		combinations<int> test0(s, i);
+		combinations<int> test1(test0);
+		EXPECT_EQ(test0, test1);
+	}
 }
 
 
 TEST(CombinationsConstruction, MakeCombinations)
 {
-  std::set<int> s{ 0,3,5 };
+	std::set<int> s{ 0,3,5 };
 
-  combinations<int> test1{ s, 2 };
-  auto test2 = make_combinations(s, 2);
-  EXPECT_EQ(test1, test2);
+	combinations<int> test1{ s, 2 };
+	auto test2 = make_combinations(s, 2);
+	EXPECT_EQ(test1, test2);
 
-  combinations<int> test3{ s.begin(), s.end(), 3 };
-  auto test4 = make_combinations(s.begin(), s.end(), 3);
-  EXPECT_EQ(test3, test4);
+	combinations<int> test3{ s.begin(), s.end(), 3 };
+	auto test4 = make_combinations(s.begin(), s.end(), 3);
+	EXPECT_EQ(test3, test4);
 
-  combinations<int> test5{ s.cbegin(), s.cend(), 1 };
-  auto test6 = make_combinations(s.cbegin(), s.cend(), 1);
-  EXPECT_EQ(test5, test6);
+	combinations<int> test5{ s.cbegin(), s.cend(), 1 };
+	auto test6 = make_combinations(s.cbegin(), s.cend(), 1);
+	EXPECT_EQ(test5, test6);
 }
 
 
@@ -176,25 +176,25 @@ TEST(combination_iterator_navigation, combinations_one)
 	std::vector<std::set<int>> results{{0}, {1}, {2}, {3}};
 	combinations<int> test{s.begin(), s.end(), 1};
 
-  EXPECT_EQ(results.size(), test.size());
-  if (results.size() == test.size())
-  {
-    EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin(), test.end()));
-  }
+	EXPECT_EQ(results.size(), test.size());
+	if (results.size() == test.size())
+	{
+		EXPECT_TRUE(std::equal(results.begin(), results.end(), test.begin(), test.end()));
+	}
 }
 
 
 TEST(combination_iterator_navigation, combinations_two)
 {
-  std::set<int> s{ 0,1,2,3 };
-  std::vector<std::set<int>> results{ {0,1},{0,2},{0,3},{1,2},{1,3},{2,3} };
-  combinations<int> test{ s.begin(), s.end(), 2 };
+	std::set<int> s{ 0,1,2,3 };
+	std::vector<std::set<int>> results{ {0,1},{0,2},{0,3},{1,2},{1,3},{2,3} };
+	combinations<int> test{ s.begin(), s.end(), 2 };
 
-  EXPECT_EQ(results.size(), test.size());
-  if (results.size() == test.size())
-  {
-    EXPECT_TRUE(std::equal(results.cbegin(), results.cend(), test.cbegin(), test.cend()));
-  }
+	EXPECT_EQ(results.size(), test.size());
+	if (results.size() == test.size())
+	{
+		EXPECT_TRUE(std::equal(results.cbegin(), results.cend(), test.cbegin(), test.cend()));
+	}
 }
 
 
