@@ -5,7 +5,7 @@
 ### Iterate over a set of combinations
 
 The Combination Iterator shall be capable of iterating
-over the set of combinations of a specified size of an STL container.
+over the set of combinations of a specified size of an STL-compatible container.
 
 ### Not generate set of combinations
 
@@ -32,6 +32,8 @@ Iterators equivalent to `std::begin` and `std::end` shall be able to be created.
 
 The Combinations Iterator shall support the use of the range for syntax
 for iterating over the combinations.
+
+Combinations shall be able to be generated for C++20 ranges.
 
 ### Iterator usage
 

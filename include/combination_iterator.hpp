@@ -1,6 +1,6 @@
 /**
 *	\author    John Szwast
-*	\year      2014-2016
+*	\year      2014-2022
 *	\copyright MIT
 */
 
@@ -10,22 +10,20 @@
 
 #include <algorithm>
 #include <memory>
-#include <set>
-#include <utility>
 #include <vector>
 
 #include "MemoizedMember.hpp"
 
 
-using std::rel_ops::operator!=;
-
-template<typename Key,
-	class Compare = std::less<Key>,
-	class Allocator = std::allocator<Key>>
-	class combinations
+template<
+	class Iter,
+	class Allocator = std::allocator<typename Iter::value_type>
+>
+class combinations
 {
 public:
-	using key_type = std::set<Key, Compare, Allocator>;
+
+	using key_type = std::vector<typename Iter::value_type, Allocator>;
 	using value_type = key_type;
 	using allocator_type = Allocator;
 	using size_type = typename value_type::size_type;
@@ -36,13 +34,11 @@ public:
 	using pointer = value_type*;
 	using const_pointer = value_type const*;
 
-	using source_iterator = typename value_type::const_iterator;
 
 	class const_iterator
 	{
 	public:
-		using combinations_type = typename combinations<Key, Compare, Allocator>;
-		using source_iterator = typename combinations_type::source_iterator;
+		using combinations_type = combinations;
 		using mutable_value_type = typename combinations_type::key_type;
 
 		/// Type_traits aliases
@@ -53,24 +49,24 @@ public:
 		using iterator_category = std::forward_iterator_tag;
 
 		const_iterator(
-			source_iterator const source_begin,
-			source_iterator const source_end,
-			size_type const r,
+			Iter const source_begin,
+			Iter const source_end,
+			int const r,	///< r as in nCr.
 			bool const end = false
 		)
 			: m_begin(source_begin)
 			, m_end(source_end)
-			, m_r(r)
-			, m_members(m_r)
+			, m_members(r)
+			, m_value(r)
 			, m_at_end(end)
 		{
-			source_iterator gopher = m_begin;
+			auto gopher = m_begin;
 
 			if (m_at_end)
 			{
 				// Start gopher at m_size-1 before end, to put the last m_member at end.
 				gopher = m_end;
-				for (size_type i = 1; (i < m_r) && (gopher != m_begin); i++)
+				for (size_type i = 1; (i < r) && (gopher != m_begin); i++)
 				{
 					gopher--;
 				}
@@ -97,6 +93,11 @@ public:
 				&& (m_at_end == rhs.m_at_end);
 		}
 
+		bool operator !=(const_iterator const& rhs) const
+		{
+			return !operator==(rhs);
+		}
+
 		const_iterator& operator++()
 		{
 			increment();
@@ -120,9 +121,16 @@ public:
 
 		void calculate_value() const
 		{
-			m_value.clear();
-			for (auto& x : m_members)
-				m_value.insert(*x);
+			if (!m_valueValid)
+			{
+				std::transform(
+					m_members.cbegin(),
+					m_members.cend(),
+					m_value.begin(),
+					[](typename decltype(m_members)::value_type iter) { return *iter; }
+				);
+				m_valueValid = true;
+			}
 		}
 
 		void increment()
@@ -145,29 +153,31 @@ public:
 			}
 
 			m_at_end = m_members.empty() || (m_members.back() == m_end);
+			m_valueValid = false;
 		}
 
-		source_iterator m_begin;
-		source_iterator m_end;
-		size_type m_r;	// r as in nCr.  I might not need this, because it is embedded in m_members.
-		std::vector<source_iterator, Allocator> m_members;
+		Iter m_begin;
+		Iter m_end;
+		std::vector<Iter> m_members;
 		mutable mutable_value_type m_value;	// The value returned by dereferencing.
+		mutable bool m_valueValid = false;
 		bool m_at_end;	// If m_r == 0, then m_members is always empty and there is no distinction
 							// between begin and end.  This flag will indicate when the end has been reached.
 	};
 
 	using iterator = const_iterator;
 
-	combinations(key_type const& source, size_type r)
-		: combinations(source.begin(), source.end(), r)
+	combinations(Iter source_begin, Iter source_end, int r)
+		: m_begin(source_begin)
+		, m_end(source_end)
+		, m_r(r)
 	{
 
 	}
 
-	combinations(source_iterator source_begin, source_iterator source_end, size_type r)
-		: m_begin(source_begin)
-		, m_end(source_end)
-		, m_r(r)
+	template<class Container>
+	combinations(Container const& source, int r)
+		: combinations(source.begin(), source.end(), r)
 	{
 
 	}
@@ -183,7 +193,7 @@ public:
 
 
 	combinations& operator=(combinations const&) = default;
-	combinations& operator=(combinations&&) = default;
+	combinations& operator=(combinations&&) noexcept = default;
 
 
 	combinations(combinations&& rhs)
@@ -205,6 +215,11 @@ public:
 		return (m_r == rhs.m_r)
 			&& (size() == rhs.size())
 			&& std::equal(m_begin, m_end, rhs.m_begin);
+	}
+
+	bool operator!=(const combinations& rhs) const
+	{
+		return !operator==(rhs);
 	}
 
 	const_iterator begin() const
@@ -229,12 +244,12 @@ public:
 
 	/**
 	   * The size() method will return the number of combination sets in the combinations class,
-	   * but it not a simple getter.  Evaluating the number of combinations requires knowledge of
-	   * the number of elements in the base container.  Finding the number of elements in the base
-	   * container may not be a constant-time operation.  If the source iterators are only
-	   * forward iterators, not random-access, then finding the size of the base container will
-	   * cost on the order of the size of the base container.  Once calculated, the size will be
-	   * cached for successive calls.
+	   * but it not a simple getter.
+	   * Evaluating the number of combinations requires knowledge of the number of elements in the base container.
+	   * Finding the number of elements in the base container may not be a constant-time operation.
+	   * If the source iterators are only forward iterators, not random-access,
+	   * then finding the size of the base container will cost on the order of the size of the base container.
+	   * Once calculated, the size will be cached for successive calls.
 	   *
 	   * \see evaluate_size()
 	   */
@@ -248,31 +263,32 @@ private:
 	size_type evaluate_size() const
 	{
 		auto n = std::distance(m_begin, m_end);
-		size_type r_max = std::min(m_r, n - m_r);
+		int r_max = std::min<int>(m_r, n - m_r);
 		size_type size{ 1 };
 		for (size_type r = 0; r++ < r_max; n--)
 			(size *= n) /= r;
 		return size;
 	}
 
-	source_iterator m_begin;
-	source_iterator m_end;
-	size_type m_r;	// 'r' as in nCr.
+	Iter m_begin;
+	Iter m_end;
+	int m_r;	// 'r' as in nCr.
 	MemoizedMember<size_type, combinations, &combinations::evaluate_size> m_size{ *this };
 
 };
 
 
-template<typename T>
-combinations<T> make_combinations(std::set<T> const& source, typename combinations<T>::size_type r)
+template<typename Container>
+combinations<typename Container::iterator> make_combinations(Container const& source, int r)
 {
-  return combinations<T>{source, r};
+  return combinations<typename Container::iterator>{source, r};
 }
 
 
-template<typename Iter, typename T = typename Iter::value_type>
-combinations<T> make_combinations(Iter begin, Iter end, typename combinations<T>::size_type r)
+template<typename Iter>
+combinations<Iter> make_combinations(Iter begin, Iter end, int r)
 {
-  return combinations<T>{begin, end, r};
+	return combinations<Iter>{begin, end, r};
 }
+
 

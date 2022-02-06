@@ -26,7 +26,8 @@ class Allocator = std::allocator<Key>>
 class powerset
 {
 public:
-  using key_type = std::set<Key, Compare, Allocator>;
+  using source_type = std::set<Key, Compare, Allocator>;
+  using key_type = std::vector<Key, Allocator>;
   using value_type = key_type;
   using allocator_type = Allocator;
   using size_type = typename value_type::size_type;
@@ -37,12 +38,12 @@ public:
   using pointer = value_type*;
   using const_pointer = value_type const*;
 
-  using source_iterator = typename value_type::const_iterator;
+  using source_iterator = typename source_type::const_iterator;
 
   class const_iterator
   {
   public:
-    using powers_type = typename powerset<Key, Compare, Allocator>;
+    using powers_type = typename powerset;
     using source_iterator = typename powers_type::source_iterator;
     using mutable_value_type = typename powers_type::key_type;
 
@@ -94,7 +95,7 @@ public:
 
   private:
 
-    using combinations_type = combinations<Key, Compare, Allocator>;
+    using combinations_type = combinations<typename source_type::const_iterator>;
 
 
     void increment()
@@ -127,7 +128,7 @@ public:
 
   using iterator = const_iterator;
 
-  powerset(key_type const& source)
+  powerset(source_type const& source)
     : powerset(source.cbegin(), source.cend())
   {
 
