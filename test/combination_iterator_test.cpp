@@ -9,57 +9,71 @@
 
 #include "gtest/gtest.h"
 
+#include <list>
 #include <set>
+#include <vector>
 
 
-TEST(combinations_construction, construction_from_set)
+template<class C>
+class CombinationsConstruction : public testing::Test
 {
-	std::set<int> s{ 0, 3, -6, 12 };
+protected:
+	using Container = C;
+};
+
+using ContainerTypes = testing::Types<std::set<int>, std::vector<int>, std::list<int>>;
+
+TYPED_TEST_SUITE(CombinationsConstruction, ContainerTypes);
+
+
+TYPED_TEST(CombinationsConstruction, construction_from_set)
+{
+	Container s{ 0, 3, -6, 12 };
 	for (int i = 0; i <= s.size(); ++i)
 	{
-		combinations<std::set<int>::const_iterator> test{ s, i };
+		combinations<Container::const_iterator> test{ s, i };
 	}
 	SUCCEED();  // If it compiles, it passes.
 }
 
 
-TEST(combinations_construction, construction_from_iterators)
+TYPED_TEST(CombinationsConstruction, construction_from_iterators)
 {
-	std::set<int> s{0, 4, -4, 8, 15};
+	Container s{0, 4, -4, 8, 15};
 	for(int i = 0; i <= s.size(); i++)
 	{
-		combinations<std::set<int>::iterator> test1{ s, i };
-		combinations<std::set<int>::iterator> test2{s.cbegin(), s.cend(), i};
+		combinations<Container::const_iterator> test1{ s, i };
+		combinations<Container::const_iterator> test2{s.cbegin(), s.cend(), i};
 		EXPECT_EQ(test1, test2);
 	}
 }
 
 
-TEST(CombinationsConstruction, CopyConstruction)
+TYPED_TEST(CombinationsConstruction, CopyConstruction)
 {
-	std::set<int> s{0, 3, 5};
+	Container s{0, 3, 5};
 	for (int i = 0; i <= s.size(); ++i)
 	{
-		combinations<std::set<int>::iterator> test0(s, i);
-		combinations<std::set<int>::iterator> test1(test0);
+		combinations<Container::const_iterator> test0(s, i);
+		combinations<Container::const_iterator> test1(test0);
 		EXPECT_EQ(test0, test1);
 	}
 }
 
 
-TEST(CombinationsConstruction, MakeCombinations)
+TYPED_TEST(CombinationsConstruction, MakeCombinations)
 {
-	std::set<int> s{ 0,3,5 };
+	Container s{ 0,3,5 };
 
-	combinations<std::set<int>::iterator> test1{ s, 2 };
+	combinations<Container::const_iterator> test1{ s, 2 };
 	auto test2 = make_combinations(s, 2);
 	EXPECT_EQ(test1, test2);
 
-	combinations<std::set<int>::iterator> test3{ s.begin(), s.end(), 3 };
+	combinations<Container::const_iterator> test3{ s.begin(), s.end(), 3 };
 	auto test4 = make_combinations(s.begin(), s.end(), 3);
 	EXPECT_EQ(test3, test4);
 
-	combinations<std::set<int>::iterator> test5{ s.cbegin(), s.cend(), 1 };
+	combinations<Container::const_iterator> test5{ s.cbegin(), s.cend(), 1 };
 	auto test6 = make_combinations(s.cbegin(), s.cend(), 1);
 	EXPECT_EQ(test5, test6);
 }
@@ -105,7 +119,7 @@ TEST(combinations_equality, equally_constructed)
 		}
 
 	std::set<int> s3{1, 2, 4};
-	for(int i = 0; i <= s1.size(); i++)
+	for(int i = 1; i <= s1.size(); i++)
 	{
 		combinations<std::set<int>::iterator> test1{s1.begin(), s1.end(), i};
 		combinations<std::set<int>::iterator> test2{s3.begin(), s3.end(), i};

@@ -210,7 +210,8 @@ public:
 	 *	iterators from different containers.  I'm trying not to get too upset about it, because
 	 *	I can understand the sentiment.  None-the-less it has proven rather irritating.
 	 */
-	bool operator==(const combinations& rhs) const
+	template<class Iter2, class Alloc>
+	bool operator==(const combinations<Iter2, Alloc>& rhs) const
 	{
 		return (m_r == rhs.m_r)
 			&& (size() == rhs.size())
@@ -260,6 +261,9 @@ public:
 
 private:
 
+	template<class Iter2, class Alloc>
+	friend class combinations;
+
 	size_type evaluate_size() const
 	{
 		auto n = std::distance(m_begin, m_end);
@@ -279,9 +283,9 @@ private:
 
 
 template<typename Container>
-combinations<typename Container::iterator> make_combinations(Container const& source, int r)
+combinations<typename Container::const_iterator> make_combinations(Container const& source, int r)
 {
-  return combinations<typename Container::iterator>{source, r};
+  return combinations<typename Container::const_iterator>{source, r};
 }
 
 
