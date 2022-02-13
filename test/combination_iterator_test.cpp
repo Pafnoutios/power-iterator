@@ -29,7 +29,7 @@ TYPED_TEST_SUITE(CombinationsConstruction, ContainerTypes);
 TYPED_TEST(CombinationsConstruction, construction_from_set)
 {
 	Container s{ 0, 3, -6, 12 };
-	for (int i = 0; i <= s.size(); ++i)
+	for (size_t i = 0; i <= s.size(); ++i)
 	{
 		combinations<Container::const_iterator> test{ s, i };
 	}
@@ -40,7 +40,7 @@ TYPED_TEST(CombinationsConstruction, construction_from_set)
 TYPED_TEST(CombinationsConstruction, construction_from_iterators)
 {
 	Container s{0, 4, -4, 8, 15};
-	for(int i = 0; i <= s.size(); i++)
+	for(size_t i = 0; i <= s.size(); i++)
 	{
 		combinations<Container::const_iterator> test1{ s, i };
 		combinations<Container::const_iterator> test2{s.cbegin(), s.cend(), i};
@@ -52,7 +52,7 @@ TYPED_TEST(CombinationsConstruction, construction_from_iterators)
 TYPED_TEST(CombinationsConstruction, CopyConstruction)
 {
 	Container s{0, 3, 5};
-	for (int i = 0; i <= s.size(); ++i)
+	for (size_t i = 0; i <= s.size(); ++i)
 	{
 		combinations<Container::const_iterator> test0(s, i);
 		combinations<Container::const_iterator> test1(test0);
@@ -82,15 +82,15 @@ TYPED_TEST(CombinationsConstruction, MakeCombinations)
 TEST(combinations_equality, equivalently_constructed)
 {
 	std::set<int> s{1, 2, 3};
-	for(int i = 0; i <= s.size(); i++)
+	for(size_t i = 0; i <= s.size(); i++)
 	{
 		combinations<std::set<int>::iterator> test1{s.begin(), s.end(), i};
 		combinations<std::set<int>::iterator> test2{s.begin(), s.end(), i};
 		EXPECT_EQ(test1, test2);
 	}
 
-	for (int i = 0; i <= s.size(); i++)
-		for (int j = 0; j < i; j++)
+	for (size_t i = 0; i <= s.size(); i++)
+		for (size_t j = 0; j < i; j++)
 		{
 			combinations<std::set<int>::iterator> test1{s.begin(), s.end(), i};
 			combinations<std::set<int>::iterator> test2{s.begin(), s.end(), j};
@@ -103,15 +103,15 @@ TEST(combinations_equality, equally_constructed)
 {
 	std::set<int> s1{1, 2, 3};
 	std::set<int> s2{s1};
-	for(int i = 0; i <= s1.size(); i++)
+	for(size_t i = 0; i <= s1.size(); i++)
 	{
 		combinations<std::set<int>::iterator> test1{s1.begin(), s1.end(), i};
 		combinations<std::set<int>::iterator> test2{s2.begin(), s2.end(), i};
 		EXPECT_EQ(test1, test2);
 	}
 
-	for (int i = 0; i <= s1.size(); i++)
-		for (int j = 0; j < i; j++)
+	for (size_t i = 0; i <= s1.size(); i++)
+		for (size_t j = 0; j < i; j++)
 		{
 			combinations<std::set<int>::iterator> test1{s1.begin(), s1.end(), i};
 			combinations<std::set<int>::iterator> test2{s2.begin(), s2.end(), j};
@@ -119,7 +119,7 @@ TEST(combinations_equality, equally_constructed)
 		}
 
 	std::set<int> s3{1, 2, 4};
-	for(int i = 1; i <= s1.size(); i++)
+	for(size_t i = 1; i <= s1.size(); i++)
 	{
 		combinations<std::set<int>::iterator> test1{s1.begin(), s1.end(), i};
 		combinations<std::set<int>::iterator> test2{s3.begin(), s3.end(), i};
@@ -167,7 +167,7 @@ TEST(combination_iterator_navigation, combinations_zero)
 	EXPECT_EQ(1, test1.size());
 
 	auto test_it = test1.begin();
-	for (auto i = 0; i < s.size(); i++)
+	for (size_t i = 0; i < s.size(); i++)
 		EXPECT_EQ(std::vector<int>{}, *test_it++);
 }
 

@@ -5,7 +5,7 @@ from conans import ConanFile, tools
 
 class PowerIteratorConan(ConanFile):
     name = "power_iterator"
-    version = "1.0"
+    version = "1.1"
     license = "MIT"
     author = "John Szwast <And your email here>"
     url = "https://github.com/Pafnoutios/memoized-member"

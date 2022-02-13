@@ -51,7 +51,7 @@ public:
 		const_iterator(
 			Iter const source_begin,
 			Iter const source_end,
-			int const r,	///< r as in nCr.
+			size_type const r,	///< r as in nCr.
 			bool const end = false
 		)
 			: m_begin(source_begin)
@@ -167,33 +167,26 @@ public:
 
 	using iterator = const_iterator;
 
-	combinations(Iter source_begin, Iter source_end, int r)
+
+	combinations(Iter source_begin, Iter source_end, size_type r)
 		: m_begin(source_begin)
 		, m_end(source_end)
 		, m_r(r)
-	{
+	{}
 
-	}
 
 	template<class Container>
-	combinations(Container const& source, int r)
+	combinations(Container const& source, size_type r)
 		: combinations(source.begin(), source.end(), r)
-	{
+	{}
 
-	}
 
 	combinations(combinations const& rhs)
 		: m_begin(rhs.m_begin)
 		, m_end(rhs.m_end)
 		, m_r(rhs.m_r)
 		, m_size(*this, rhs.m_size)
-	{
-
-	}
-
-
-	combinations& operator=(combinations const&) = default;
-	combinations& operator=(combinations&&) noexcept = default;
+	{}
 
 
 	combinations(combinations&& rhs)
@@ -202,6 +195,11 @@ public:
 		, m_r(std::move(rhs.m_r))
 		, m_size(*this, std::move(rhs.m_size))
 	{}
+
+
+	combinations& operator=(combinations const&) = default;
+	combinations& operator=(combinations&&) noexcept = default;
+
 
 	/**
 	 *	@remarks
@@ -267,7 +265,7 @@ private:
 	size_type evaluate_size() const
 	{
 		auto n = std::distance(m_begin, m_end);
-		int r_max = std::min<int>(m_r, n - m_r);
+		size_type r_max = std::min<size_type>(m_r, n - m_r);
 		size_type size{ 1 };
 		for (size_type r = 0; r++ < r_max; n--)
 			(size *= n) /= r;
@@ -276,21 +274,21 @@ private:
 
 	Iter m_begin;
 	Iter m_end;
-	int m_r;	// 'r' as in nCr.
+	size_type m_r;	// 'r' as in nCr.
 	MemoizedMember<size_type, combinations, &combinations::evaluate_size> m_size{ *this };
 
 };
 
 
 template<typename Container>
-combinations<typename Container::const_iterator> make_combinations(Container const& source, int r)
+combinations<typename Container::const_iterator> make_combinations(Container const& source, size_t r)
 {
   return combinations<typename Container::const_iterator>{source, r};
 }
 
 
 template<typename Iter>
-combinations<Iter> make_combinations(Iter begin, Iter end, int r)
+combinations<Iter> make_combinations(Iter begin, Iter end, size_t r)
 {
 	return combinations<Iter>{begin, end, r};
 }
